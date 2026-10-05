@@ -75,21 +75,22 @@ export default function Creator() {
   if (step !== "pick") {
     return (
       <div className="mx-auto max-w-xl py-6">
-        <p className="font-hand text-3xl">Новая открытка</p>
+        <p className="font-display text-4xl font-semibold">Новая открытка</p>
         <label className="label mt-6">Стих</label>
         <textarea
-          className="field min-h-72 leading-relaxed"
+          className="field min-h-72 font-display text-[1.15rem] leading-relaxed"
           value={poem}
           onChange={(e) => setPoem(e.target.value)}
           placeholder="Вставьте стих целиком"
         />
-        <label className="label mt-4">Место и дата, если хотите (например, «Байкал, остров Ольхон, 17/09/26»)</label>
-        <input className="field" value={comment} onChange={(e) => setComment(e.target.value)} />
+        <label className="label mt-5">Место и дата <span className="font-normal text-muted">(необязательно)</span></label>
+        <input className="field" value={comment} placeholder="Байкал, остров Ольхон, 17/09/26" onChange={(e) => setComment(e.target.value)} />
+        <p className="hint">Дату с открытки возьмём отсюда. Без неё открытка тоже получится.</p>
         {error && <p className="mt-3 text-sm text-red-800">{error}</p>}
         <button className="btn mt-6" disabled={!poem.trim() || step === "thinking"} onClick={start}>
           {step === "thinking" ? "Читаю стих…" : "Сделать открытку"}
         </button>
-        <p className="mt-3 text-sm text-ink/60">Картинка рисуется около полуминуты. Будет два варианта на выбор.</p>
+        <p className="hint mt-3">Картинка рисуется около полуминуты. Будет два варианта на выбор.</p>
       </div>
     );
   }
@@ -103,11 +104,11 @@ export default function Creator() {
   return (
     <div className="grid gap-10 py-4 lg:grid-cols-[minmax(0,420px)_1fr]">
       <div className="mx-auto w-full max-w-[420px]">
-        <div className="overflow-hidden rounded-lg shadow-[0_18px_50px_rgba(40,25,10,.28)]">
+        <div className="overflow-hidden rounded-[22px] shadow-[0_2px_4px_rgba(43,36,32,.06),0_20px_50px_rgba(43,36,32,.16)]">
           {current?.status === "ready" ? (
             <Postcard {...fields} poem={poemLines(poem)} bg={current.url} />
           ) : (
-            <div className="flex aspect-[768/1344] items-center justify-center bg-[#e4d9c3] p-8 text-center text-ink/70">
+            <div className="flex aspect-[768/1344] items-center justify-center bg-sand p-8 text-center text-muted">
               {current?.status === "error" ? current.error : "Рисую… обычно это около полуминуты"}
             </div>
           )}
@@ -117,19 +118,19 @@ export default function Creator() {
             <button
               key={i}
               onClick={() => setChosen(i)}
-              className={`h-24 w-14 overflow-hidden rounded bg-[#e4d9c3] ring-offset-2 ring-offset-paper ${i === shown ? "ring-2 ring-ink" : ""}`}
+              className={`h-24 w-14 overflow-hidden rounded bg-sand ring-offset-2 ring-offset-bg ${i === shown ? "ring-2 ring-accent" : ""}`}
               aria-label={`Вариант ${i + 1}`}
             >
               {v.status === "ready" ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={v.url} alt="" className="h-full w-full object-cover" />
               ) : (
-                <span className="text-xs text-ink/50">{v.status === "error" ? "×" : "…"}</span>
+                <span className="text-xs text-muted">{v.status === "error" ? "×" : "…"}</span>
               )}
             </button>
           ))}
           {brief && (
-            <button className="btn btn-ghost h-24 px-4 text-sm" onClick={() => paintMore(brief)}>
+            <button className="btn btn-soft h-24 px-4 text-sm" onClick={() => paintMore(brief)}>
               Ещё
               <br />
               варианты
@@ -139,8 +140,8 @@ export default function Creator() {
       </div>
 
       <div className="mx-auto w-full max-w-md lg:mx-0">
-        <p className="font-hand text-3xl">Подписи</p>
-        <p className="mt-1 text-sm text-ink/60">Их придумала нейросеть по стиху. Поправьте, если хочется.</p>
+        <p className="font-display text-4xl font-semibold">Подписи</p>
+        <p className="mt-1 text-sm text-muted">Их придумала нейросеть по стиху. Поправьте, если хочется.</p>
         <label className="label mt-5">Заголовок</label>
         <input className="field" value={fields.title} onChange={(e) => setFields({ ...fields, title: e.target.value })} />
         <label className="label mt-4">Дата</label>
@@ -159,7 +160,7 @@ export default function Creator() {
           <button className="btn" disabled={current?.status !== "ready" || publishing} onClick={publish}>
             {publishing ? "Публикую…" : "Опубликовать"}
           </button>
-          <button className="btn btn-ghost" onClick={() => setStep("write")}>
+          <button className="btn btn-soft" onClick={() => setStep("write")}>
             Изменить стих
           </button>
         </div>

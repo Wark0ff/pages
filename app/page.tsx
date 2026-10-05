@@ -1,34 +1,44 @@
 import Link from "next/link";
-import Postcard from "@/components/Postcard";
+import Feed from "@/components/Feed";
+import { Plus } from "@/components/Icons";
 import { listCards } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-export default async function Gallery() {
+const plural = (n: number) =>
+  n % 10 === 1 && n % 100 !== 11 ? "открытка" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "открытки" : "открыток";
+
+export default async function Home() {
   const cards = await listCards();
 
-  if (!cards.length) {
-    return (
-      <div className="mx-auto max-w-md py-24 text-center">
-        <p className="font-hand text-3xl">Здесь пока пусто</p>
-        <p className="mt-3 text-ink/70">Первая открытка появится, как только будет готов первый стих.</p>
-        <Link href="/new" className="btn mt-8">
-          Сделать открытку
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid grid-cols-2 gap-x-5 gap-y-9 sm:grid-cols-3 lg:grid-cols-4">
-      {cards.map((c) => (
-        <Link key={c.id} href={`/p/${c.id}`} className="group block">
-          <div className="overflow-hidden rounded-md shadow-[0_8px_24px_rgba(40,25,10,.18)] transition-transform duration-300 group-hover:-translate-y-1">
-            <Postcard {...c} />
-          </div>
-          <p className="mt-3 truncate font-hand text-lg">{c.title}</p>
-        </Link>
-      ))}
-    </div>
+    <>
+      <section className="py-10 sm:py-14">
+        <h1 className="max-w-2xl font-display text-[2.4rem] font-semibold leading-[1.05] sm:text-6xl">
+          Стихи, которые стали <span className="italic text-accent">открытками</span>
+        </h1>
+        <p className="mt-4 max-w-xl text-base text-muted sm:text-lg">
+          Каждое стихотворение получает свою картинку, свой штемпель и свой адрес. Листайте, читайте, делитесь ссылкой.
+        </p>
+        {cards.length > 0 && (
+          <p className="mt-5 text-sm font-semibold text-muted">
+            {cards.length} {plural(cards.length)}
+          </p>
+        )}
+      </section>
+
+      {cards.length ? (
+        <Feed cards={cards} />
+      ) : (
+        <div className="rounded-[28px] bg-sand px-6 py-16 text-center">
+          <p className="font-display text-3xl font-semibold">Здесь пока пусто</p>
+          <p className="mt-2 text-muted">Первая открытка появится, как только будет готов первый стих.</p>
+          <Link href="/new" className="btn mt-6">
+            <Plus />
+            Сделать открытку
+          </Link>
+        </div>
+      )}
+    </>
   );
 }

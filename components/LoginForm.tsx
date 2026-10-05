@@ -21,11 +21,14 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={submit} className="mx-auto max-w-sm py-20">
-      <p className="font-hand text-3xl">Вход для автора</p>
-      <p className="mt-2 text-ink/70">Открытки делает только автор стихов. Смотреть их можно всем по ссылке.</p>
+      <h1 className="font-display text-4xl font-semibold">Вход для автора</h1>
+      <p className="mt-2 text-muted">Открытки делает только автор стихов. Смотреть их можно всем по ссылке.</p>
+      <label htmlFor="pw" className="label mt-6">Пароль</label>
       <input
+        id="pw"
         type="password"
-        className="field mt-6"
+        autoComplete="current-password"
+        className="field"
         placeholder="Пароль"
         value={password}
         onChange={(e) => setPassword(e.target.value)}

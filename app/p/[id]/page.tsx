@@ -1,33 +1,55 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import Feed from "@/components/Feed";
+import { ArrowLeft } from "@/components/Icons";
 import Postcard from "@/components/Postcard";
 import ShareButtons from "@/components/ShareButtons";
-import { getCard } from "@/lib/store";
+import { getCard, listCards } from "@/lib/store";
 
 export async function generateMetadata({ params }: PageProps<"/p/[id]">): Promise<Metadata> {
   const card = await getCard((await params).id);
   if (!card) return {};
-  return {
-    title: card.title,
-    description: card.poem.slice(0, 2).join(" "),
-    openGraph: { title: card.title, description: card.poem.slice(0, 2).join(" "), images: [card.bg] },
-  };
+  const description = card.poem.filter(Boolean).slice(0, 2).join(" ");
+  return { title: card.title, description, openGraph: { title: card.title, description, images: [card.bg] } };
 }
 
 export default async function CardPage({ params }: PageProps<"/p/[id]">) {
-  const card = await getCard((await params).id);
+  const { id } = await params;
+  const [card, all] = await Promise.all([getCard(id), listCards()]);
   if (!card) notFound();
+  const more = all.filter((c) => c.id !== card.id).slice(0, 8);
 
   return (
-    <div className="mx-auto flex max-w-[460px] flex-col items-center">
-      <div className="w-full overflow-hidden rounded-lg shadow-[0_18px_50px_rgba(40,25,10,.28)]">
-        <Postcard {...card} />
-      </div>
-      <ShareButtons title={card.title} />
-      <Link href="/" className="mt-6 text-sm text-ink/70 underline-offset-4 hover:underline">
-        ← Все открытки
+    <>
+      <Link href="/" className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-muted hover:text-fg">
+        <ArrowLeft className="h-4 w-4" />
+        Все открытки
       </Link>
-    </div>
+
+      <article className="mt-4 grid gap-8 md:grid-cols-[minmax(0,420px)_minmax(0,1fr)] md:gap-14">
+        <div className="mx-auto w-full max-w-[420px]">
+          <div className="overflow-hidden rounded-[22px] shadow-[0_2px_4px_rgba(43,36,32,.06),0_20px_50px_rgba(43,36,32,.16)]">
+            <Postcard {...card} />
+          </div>
+        </div>
+
+        <div className="md:pt-4">
+          {card.date && <p className="text-sm font-semibold tracking-wide text-accent">{card.date.replaceAll("/", ".")}</p>}
+          <h1 className="mt-1 font-display text-4xl font-semibold leading-tight sm:text-5xl">{card.title}</h1>
+          <div className="mt-6 font-display text-[1.35rem] leading-[1.6]">
+            {card.poem.map((l, i) => (l.trim() ? <p key={i} className="pl-5 -indent-5">{l}</p> : <div key={i} className="h-4" />))}
+          </div>
+          <ShareButtons title={card.title} />
+        </div>
+      </article>
+
+      {more.length > 0 && (
+        <section className="mt-20">
+          <h2 className="mb-6 font-display text-3xl font-semibold">Ещё открытки</h2>
+          <Feed cards={more} />
+        </section>
+      )}
+    </>
   );
 }

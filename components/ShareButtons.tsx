@@ -2,19 +2,19 @@
 
 import { toPng } from "html-to-image";
 import { useState } from "react";
+import { Download, Share } from "@/components/Icons";
 
-/** Скачать открытку картинкой (собирается из той же вёрстки) и поделиться ссылкой. */
+/** Поделиться ссылкой и скачать открытку картинкой (собирается из той же вёрстки). */
 export default function ShareButtons({ title }: { title: string }) {
   const [state, setState] = useState<"" | "saving" | "copied" | "error">("");
 
   async function download() {
-    const node = document.querySelector<HTMLElement>(".pc");
+    const node = document.querySelector<HTMLElement>("article .pc");
     if (!node) return;
     setState("saving");
     try {
       // рендерим в 768 px ширины — исходный размер макета
-      const ratio = 768 / node.offsetWidth;
-      const url = await toPng(node, { pixelRatio: ratio, cacheBust: true });
+      const url = await toPng(node, { pixelRatio: 768 / node.offsetWidth, cacheBust: true });
       const a = document.createElement("a");
       a.href = url;
       a.download = `${title}.png`;
@@ -32,25 +32,29 @@ export default function ShareButtons({ title }: { title: string }) {
         await navigator.share({ title, url });
         return;
       } catch {
-        /* пользователь закрыл окно — просто копируем */
+        /* окно закрыли — просто копируем ссылку */
       }
     }
     await navigator.clipboard.writeText(url);
     setState("copied");
-    setTimeout(() => setState(""), 2000);
+    setTimeout(() => setState(""), 2500);
   }
 
   return (
-    <div className="mt-6 flex flex-col items-center gap-2">
-      <div className="flex gap-3">
+    <div className="mt-8">
+      <div className="flex flex-wrap gap-3">
         <button className="btn" onClick={share}>
+          <Share />
           {state === "copied" ? "Ссылка скопирована" : "Поделиться"}
         </button>
-        <button className="btn btn-ghost" onClick={download} disabled={state === "saving"}>
-          {state === "saving" ? "Сохраняю…" : "Скачать"}
+        <button className="btn btn-soft" onClick={download} disabled={state === "saving"}>
+          <Download />
+          {state === "saving" ? "Сохраняю…" : "Скачать картинку"}
         </button>
       </div>
-      {state === "error" && <p className="text-sm text-red-800">Не получилось сохранить картинку, попробуйте ещё раз</p>}
+      <p aria-live="polite" className="mt-2 min-h-5 text-sm text-red-800">
+        {state === "error" ? "Не получилось сохранить картинку, попробуйте ещё раз" : ""}
+      </p>
     </div>
   );
 }
