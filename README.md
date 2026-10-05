@@ -1,36 +1,20 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Открытки со стихами
 
-## Getting Started
+Автор вставляет стих, нейросеть рисует иллюстрацию, сайт собирает из неё открытку: заголовок в небе,
+рукописные заметки, стих на листе письма с маркой и штемпелем. У каждой открытки свой адрес.
 
-First, run the development server:
+- Задание для художника по стиху: Mistral Small 3.1, фон 768×1344: FLUX.2 klein 4B, обе модели на Cloudflare Workers AI (бесплатный лимит).
+- Хранение: Vercel Blob (`bg/` фоны, `cards/<id>.json` открытки).
+- Открытка собирается в браузере (`components/Postcard.tsx`, `app/postcard.css`), поэтому текст всегда чёткий.
+- Создавать открытки может только автор (пароль), смотреть может кто угодно.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Переменные окружения
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Имя | Что это |
+| --- | --- |
+| `CF_ACCOUNT_ID`, `CF_API_TOKEN` | Cloudflare Workers AI |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob (появляется сам после подключения хранилища) |
+| `POET_PASSWORD` | пароль автора |
+| `SESSION_SECRET` | случайная строка для подписи cookie |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Локально: `vercel env pull .env.local`, затем `npm run dev`.

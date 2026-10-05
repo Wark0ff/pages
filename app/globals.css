@@ -1,26 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #efe7d8;
+  --ink: #1f3550;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --font-serif: var(--font-ptserif), Georgia, serif;
+  --font-script: var(--font-marck), cursive;
+  --font-hand: var(--font-bad), cursive;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ptserif), Georgia, serif;
 }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  border-radius: 999px; padding: .7rem 1.4rem; font-size: .95rem;
+  background: var(--ink); color: #fbf6ec; transition: opacity .15s;
+}
+.btn:hover { opacity: .88; }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn-ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px rgba(31, 53, 80, .35); }
+
+.field {
+  width: 100%; border-radius: .6rem; background: #fbf7ef; padding: .65rem .8rem;
+  box-shadow: inset 0 0 0 1px rgba(31, 53, 80, .2); outline: none; color: #262320;
+}
+.field:focus { box-shadow: inset 0 0 0 2px rgba(31, 53, 80, .55); }
+.label { display: block; margin-bottom: .35rem; font-size: .85rem; color: rgba(31, 53, 80, .75); }
