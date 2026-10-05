@@ -1,11 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Postcard from "@/components/Postcard";
+import { dateFrom, poemLines } from "@/lib/text";
 import type { Brief } from "@/lib/types";
 
-type Variant = { status: "painting" } | { status: "ready"; url: string } | { status: "error"; error: string };
+// у каждого варианта свой ключ: результат рисования находит «свой» вариант, даже если список успели пересоздать
+type Variant = { key: number } & ({ status: "painting" } | { status: "ready"; url: string } | { status: "error"; error: string });
 
 async function post<T>(url: string, body: unknown): Promise<T> {
   const r = await fetch(url, { method: "POST", body: JSON.stringify(body) });
@@ -13,9 +15,6 @@ async function post<T>(url: string, body: unknown): Promise<T> {
   if (!r.ok) throw new Error(data.error ?? `Ошибка ${r.status}`);
   return data as T;
 }
-
-const poemLines = (text: string) => text.replace(/\r/g, "").split("\n").map((l) => l.trimEnd()).join("\n").trim().split("\n");
-const dateFrom = (comment: string) => comment.match(/\d{1,2}[./]\d{1,2}[./]\d{2,4}/)?.[0]?.replaceAll(".", "/") ?? "";
 
 /** Создание открытки: стих -> бриф -> два фона (без персонажа и с ним) -> правка подписей -> публикация. */
 export default function Creator() {
@@ -29,15 +28,16 @@ export default function Creator() {
   const [variants, setVariants] = useState<Variant[]>([]);
   const [chosen, setChosen] = useState(0);
   const [publishing, setPublishing] = useState(false);
-
+  const nextKey = useRef(0);
 
   function paintMore(b: Brief) {
-    const start = variants.length;
-    setVariants((v) => [...v, { status: "painting" }, { status: "painting" }]);
-    [false, true].forEach((character, k) => {
+    [false, true].forEach((character) => {
+      const key = nextKey.current++;
+      setVariants((v) => [...v, { key, status: "painting" }]);
+      const settle = (next: Variant) => setVariants((v) => v.map((x) => (x.key === key ? next : x)));
       post<{ url: string }>("/api/paint", { scene: b.scene, who: b.who, character })
-        .then(({ url }) => setVariants((v) => v.map((x, i) => (i === start + k ? { status: "ready", url } : x))))
-        .catch((e: Error) => setVariants((v) => v.map((x, i) => (i === start + k ? { status: "error", error: e.message } : x))));
+        .then(({ url }) => settle({ key, status: "ready", url }))
+        .catch((e: Error) => settle({ key, status: "error", error: e.message }));
     });
   }
 
@@ -116,14 +116,14 @@ export default function Creator() {
         <div className="mt-4 flex flex-wrap gap-3">
           {variants.map((v, i) => (
             <button
-              key={i}
+              key={v.key}
               onClick={() => setChosen(i)}
               className={`h-24 w-14 overflow-hidden rounded bg-sand ring-offset-2 ring-offset-bg ${i === shown ? "ring-2 ring-accent" : ""}`}
               aria-label={`Вариант ${i + 1}`}
             >
               {v.status === "ready" ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={v.url} alt="" className="h-full w-full object-cover" />
+                <img src={`/_next/image?url=${encodeURIComponent(v.url)}&w=640&q=75`} alt="" className="h-full w-full object-cover" />
               ) : (
                 <span className="text-xs text-muted">{v.status === "error" ? "×" : "…"}</span>
               )}

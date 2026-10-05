@@ -5,7 +5,7 @@ export const maxDuration = 60;
 
 export async function POST(req: Request) {
   if (!(await isPoet())) return Response.json({ error: "Нужно войти" }, { status: 401 });
-  const { poem, comment } = await req.json();
+  const { poem, comment } = await req.json().catch(() => ({}));
   if (typeof poem !== "string" || !poem.trim()) return Response.json({ error: "Пустой стих" }, { status: 400 });
   try {
     return Response.json(await brief(poem.slice(0, 4000), String(comment ?? "").slice(0, 300)));

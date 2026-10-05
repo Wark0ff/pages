@@ -2,11 +2,9 @@ import Link from "next/link";
 import Feed from "@/components/Feed";
 import { Plus } from "@/components/Icons";
 import { listCards } from "@/lib/store";
+import { pluralCards } from "@/lib/text";
 
 export const dynamic = "force-dynamic";
-
-const plural = (n: number) =>
-  n % 10 === 1 && n % 100 !== 11 ? "открытка" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "открытки" : "открыток";
 
 export default async function Home() {
   const cards = await listCards();
@@ -22,7 +20,7 @@ export default async function Home() {
         </p>
         {cards.length > 0 && (
           <p className="mt-5 text-sm font-semibold text-muted">
-            {cards.length} {plural(cards.length)}
+            {cards.length} {pluralCards(cards.length)}
           </p>
         )}
       </section>

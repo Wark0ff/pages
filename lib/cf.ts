@@ -1,4 +1,5 @@
 import "server-only";
+import { parseBrief } from "./text";
 import type { Brief } from "./types";
 
 // Cloudflare Workers AI: 10 000 нейронов в сутки бесплатно. Одна открытка (бриф + 2 фона) ≈ 360 нейронов.
@@ -46,14 +47,7 @@ export async function brief(poem: string, comment: string): Promise<Brief> {
   if (!r.ok) throw new Error(`Текстовая модель: ${r.status} ${(await r.text()).slice(0, 300)}`);
   const res = (await r.json()).result;
   const out = res.response ?? res.choices?.[0]?.message?.content;
-  const b = typeof out === "string" ? JSON.parse(out.slice(out.indexOf("{"), out.lastIndexOf("}") + 1)) : out;
-  return {
-    title: String(b.title ?? ""),
-    notes: (Array.isArray(b.notes) ? b.notes : []).map(String).slice(0, 3),
-    stamp: String(b.stamp ?? ""),
-    who: String(b.who ?? "a traveller"),
-    scene: String(b.scene ?? ""),
-  };
+  return parseBrief(out);
 }
 
 /** Рисует фон 768x1344. withCharacter — вариант с маленьким персонажем. Возвращает PNG. */

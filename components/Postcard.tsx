@@ -1,7 +1,11 @@
 import type { CSSProperties } from "react";
+import { cardLayout } from "@/lib/text";
 import type { Card } from "@/lib/types";
 
-type Props = Pick<Card, "title" | "date" | "notes" | "stamp" | "poem" | "bg">;
+type Props = Pick<Card, "title" | "date" | "notes" | "stamp" | "poem" | "bg"> & {
+  /** Ширина картинки фона: 640 для ленты, 828 для страницы открытки (значения из deviceSizes Next). */
+  imageWidth?: 640 | 828;
+};
 
 /** Размер в единицах открытки: макет 768x1344, --u = 1/768 ширины. */
 const u = (px: number) => `calc(${px} * var(--u))`;
@@ -38,16 +42,11 @@ function Postmark({ date }: { date: string }) {
 }
 
 /** Открытка в выбранном стиле: заголовок в небе, заметки, стих на листе письма с маркой и штемпелем. */
-export default function Postcard({ title, date, notes, stamp, poem, bg }: Props) {
-  // кегль и высота листа подстраиваются под длину стиха (как в прототипе)
-  const fs = poem.length <= 8 ? 27 : poem.length <= 12 ? 25 : Math.max(17, Math.floor(300 / poem.length));
-  const pt = 52;
-  const lh = Math.round(poem.length * fs * 1.42) + pt + 70;
-  const longest = Math.max(...poem.map((l) => l.length), 1);
-  const poemFs = Math.min(fs, Math.floor(560 / (longest * 0.5)));
-  const ts = Math.min(66, Math.floor(1250 / Math.max(title.length, 1)));
+export default function Postcard({ title, date, notes, stamp, poem, bg, imageWidth = 828 }: Props) {
+  const { fs: poemFs, pt, lh, ts } = cardLayout(title, poem);
   const skyY = date ? 152 : 140;
-  const bgUrl = `url("${bg}")`;
+  // фон через оптимизатор картинок Next: нужная ширина, WebP/AVIF, долгий кэш
+  const bgUrl = `url("/_next/image?url=${encodeURIComponent(bg)}&w=${imageWidth}&q=75")`;
 
   return (
     <div className="pc-frame">
