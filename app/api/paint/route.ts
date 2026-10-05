@@ -1,5 +1,4 @@
 import sharp from "sharp";
-import { isPoet } from "@/lib/auth";
 import { paint } from "@/lib/cf";
 import { saveBackground } from "@/lib/store";
 
@@ -7,7 +6,6 @@ import { saveBackground } from "@/lib/store";
 export const maxDuration = 180;
 
 export async function POST(req: Request) {
-  if (!(await isPoet())) return Response.json({ error: "Нужно войти" }, { status: 401 });
   const { scene, who, character } = await req.json().catch(() => ({}));
   if (typeof scene !== "string" || !scene.trim()) return Response.json({ error: "Нет описания сцены" }, { status: 400 });
   try {

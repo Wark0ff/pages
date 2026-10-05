@@ -1,10 +1,8 @@
-import { isPoet } from "@/lib/auth";
 import { brief } from "@/lib/cf";
 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
-  if (!(await isPoet())) return Response.json({ error: "Нужно войти" }, { status: 401 });
   const { poem, comment } = await req.json().catch(() => ({}));
   if (typeof poem !== "string" || !poem.trim()) return Response.json({ error: "Пустой стих" }, { status: 400 });
   try {

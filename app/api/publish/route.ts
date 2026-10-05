@@ -1,11 +1,9 @@
 import { randomBytes } from "node:crypto";
-import { isPoet } from "@/lib/auth";
 import { saveCard } from "@/lib/store";
 import { blobHost, newId } from "@/lib/text";
 import { validateDraft } from "@/lib/validate";
 
 export async function POST(req: Request) {
-  if (!(await isPoet())) return Response.json({ error: "Нужно войти" }, { status: 401 });
   const draft = validateDraft(await req.json().catch(() => null), blobHost(process.env.BLOB_READ_WRITE_TOKEN));
   if (typeof draft === "string") return Response.json({ error: draft }, { status: 400 });
 

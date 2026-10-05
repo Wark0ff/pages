@@ -6,7 +6,7 @@
 - Задание для художника по стиху: Mistral Small 3.1, фон 768×1344: FLUX.2 klein 4B, обе модели на Cloudflare Workers AI (бесплатный лимит).
 - Хранение: Vercel Blob (`bg/` фоны, `cards/<id>.json` открытки).
 - Открытка собирается в браузере (`components/Postcard.tsx`, `app/postcard.css`), поэтому текст всегда чёткий.
-- Создавать открытки может только автор (пароль), смотреть может кто угодно.
+- Создавать и смотреть открытки может кто угодно, без входа. Генерацию ограничивает только суточный бесплатный лимит Cloudflare (~25 открыток).
 
 ## Переменные окружения
 
@@ -14,8 +14,6 @@
 | --- | --- |
 | `CF_ACCOUNT_ID`, `CF_API_TOKEN` | Cloudflare Workers AI |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob (появляется сам после подключения хранилища) |
-| `POET_PASSWORD` | пароль автора |
-| `SESSION_SECRET` | случайная строка для подписи cookie |
 
 Локально: `vercel env pull .env.local`, затем `npm run dev`.
 
